@@ -8,17 +8,17 @@ typedef struct yazar{
     int ID;
     int scor;
     struct yazar *next;
-}YAZAR;
+}OGRENCILER;
 
-void yazar_e_s_g(YAZAR **);
-int takeYazarlar_file(YAZAR **);
-int takeYazarlar_user(YAZAR **, int ); 
-void printYazarlar(YAZAR **);
-void deleteYazarlar(YAZAR **);
+void yazar_e_s_g(OGRENCILER **);
+int takeYazarlar_file(OGRENCILER **);
+int takeYazarlar_user(OGRENCILER **, int ); 
+void printYazarlar(OGRENCILER **);
+void deleteYazarlar(OGRENCILER **);
 
 int main(){
     
-    YAZAR *yazar = NULL;
+    OGRENCILER *yazar = NULL;
     int option;
     int option2;
     int nextID;
@@ -56,7 +56,7 @@ int main(){
     return 0;
 }
 
-void yazar_e_s_g(YAZAR **yazar){
+void yazar_e_s_g(OGRENCILER **yazar){
 
     int option;
     int nextID;
@@ -73,7 +73,7 @@ void yazar_e_s_g(YAZAR **yazar){
 
 }
 
-int takeYazarlar_file(YAZAR **yazar){
+int takeYazarlar_file(OGRENCILER **yazar){
     FILE *fp;
     int i=0;
     int nextID;
@@ -81,7 +81,7 @@ int takeYazarlar_file(YAZAR **yazar){
     char *sp;
 
     fp = fopen("Yazarlar.csv", "r+");
-    YAZAR *yzr = (YAZAR*)malloc(sizeof(YAZAR));
+    OGRENCILER *yzr = (OGRENCILER*)malloc(sizeof(OGRENCILER));
 
     if(fgets(line, 100, fp) != NULL){
         *yazar = yzr;
@@ -103,13 +103,13 @@ int takeYazarlar_file(YAZAR **yazar){
 
     while(fgets(line, 100, fp) != NULL){
 
-        YAZAR *yzr = (YAZAR*)malloc(sizeof(YAZAR));
+        OGRENCILER *yzr = (OGRENCILER*)malloc(sizeof(OGRENCILER));
         if(yzr == NULL){
             exit(-1);
         }
 
         yzr->next = NULL;
-        YAZAR *curr = *yazar;
+        OGRENCILER *curr = *yazar;
         while(curr->next != NULL){
             curr = curr->next;
         }
@@ -132,16 +132,16 @@ int takeYazarlar_file(YAZAR **yazar){
     return nextID;
 }
 
-void takeYazarlar_user(YAZAR **person, int nextID){
+void takeYazarlar_user(OGRENCILER **person, int nextID){
         FILE *fp;
-        YAZAR *yzr = (YAZAR*)malloc(sizeof(YAZAR));
+        OGRENCILER *yzr = (OGRENCILER*)malloc(sizeof(OGRENCILER));
 
         if(yzr == NULL){
             exit(-1);
         } 
 
         yzr->next = NULL;
-        YAZAR *curr = *person;
+        OGRENCILER *curr = *person;
         while(curr->next != NULL){
             curr = curr->next;
         }
@@ -157,8 +157,8 @@ void takeYazarlar_user(YAZAR **person, int nextID){
         fclose(fp);
 }
 
-void printYazarlar(YAZAR **yazar){
-    YAZAR *curr = *yazar;
+void printYazarlar(OGRENCILER **yazar){
+    OGRENCILER *curr = *yazar;
     while(curr->next != NULL){
         printf("%d %s %s", curr->ID, curr->name, curr->surname);
         curr = curr->next;
@@ -166,7 +166,7 @@ void printYazarlar(YAZAR **yazar){
     printf("\n%d %s %s", curr->ID, curr->name, curr->surname);
 }
 
-void deleteYazarlar(YAZAR **yazar){
+void deleteYazarlar(OGRENCILER **yazar){
     char name[30];
     char surname[30];
     printf("silmek istediğiniz yazar adini giriniz: ");
