@@ -12,11 +12,45 @@ typedef struct yazar{
 typedef struct ogrenci{
     char name[30];
     char surname[30];
-    int ID;
+    char ID[10];
     int scor;
     struct ogrenci *next; 
     struct ogrenci *prev;  
 }OGRENCILER;
+
+typedef struct kitapOrnek{
+    char EtiketNo[20];
+    char Durum[10];
+    struct kitapOrnek *next;
+
+}KITAPORNEK;
+
+typedef struct kitap{
+    char kitapAdi[30];
+    char ISBN[15];
+    int adet;
+    struct kitap *next;
+    struct kitapOrnek *head;
+}KITAP;
+
+typedef struct kitapYazar{
+    char ISBN[15];
+    int yazarID;
+    struct kitapYazar *next;
+}KITAPYAZAR;
+
+typedef struct tarih{
+    int gun:5;
+    int ay:4;
+    int yil:12;
+}TARIH;
+
+typedef struct kitapOdunc{
+    char etiketNo[20];
+    char ogrID[10];
+    int islemTipi:1;
+    struct tarih islemTarihi;
+}KITAPODUNC;
 
 int takeYazarlar_file(YAZARLAR **);
 void takeYazarlar_user(YAZARLAR **, int );
@@ -26,11 +60,19 @@ void takeOgrenciler_file(OGRENCILER **);
 void takeOgrenciler_user(OGRENCILER **);
 void printOgrenciler(OGRENCILER **);
 int deleteOgrenciler(OGRENCILER **);
+void takeKitaplar_file(KITAP **);
+void Split_Data_y(YAZARLAR*,char line[100], int);
+void Split_Data_o(OGRENCILER*, char line[100]);
+void Split_Data_k(KITAP*, char line[100]);
+void Split_Data_ky(KITAPYAZAR* , char line[100]);
+void takeKitapYazar_file(KITAPYAZAR **kityaz);
 
 int main(){
     
     YAZARLAR *yazar = NULL;
     OGRENCILER *ogrenci = NULL;
+    KITAP *kitap = NULL;
+    KITAPYAZAR *kityaz = NULL;
 
     int nextID;
     int option;
@@ -40,6 +82,8 @@ int main(){
     scanf("%d", &option);
     nextID = takeYazarlar_file(&yazar);
     takeOgrenciler_file(&ogrenci);
+    takeKitaplar_file(&kitap);
+    takeKitapYazar_file(&kityaz);
 
     while(option != 15){
 
@@ -105,6 +149,8 @@ int main(){
     return 0;
 }
 
+
+
 int takeYazarlar_file(YAZARLAR **yazar){
     FILE *fp;
     //int i=0;
@@ -119,17 +165,10 @@ int takeYazarlar_file(YAZARLAR **yazar){
         *yazar = yzr;
     }
     yzr->next = NULL;
-    sp = strtok(line, ",");
-    yzr->ID = atof(sp);
-    nextID = yzr->ID + 1;
-
-    sp = strtok(NULL, ",");
-    strcpy(yzr->name, sp);
     
-    sp = strtok(NULL, "\n");
-    strcpy(yzr->surname, sp);
+    Split_Data_y(yzr, line, nextID);
     
-    //printf("%d %s %s", yzr->ID, yzr->name, yzr->surname);
+    printf("\n\n\n%d %s %s", yzr->ID, yzr->name, yzr->surname);
     
 
 
@@ -147,16 +186,8 @@ int takeYazarlar_file(YAZARLAR **yazar){
         }
         curr->next = yzr;
 
-        sp = strtok(line, ",");
-        yzr->ID = atof(sp);
-        nextID = yzr->ID + 1;
-
-        sp = strtok(NULL, ",");
-        strcpy(yzr->name, sp);
-
-        sp = strtok(NULL, "\n");
-        strcpy(yzr->surname, sp);
-        //printf("%d %s %s", yzr->ID, yzr->name, yzr->surname);
+        Split_Data_y(yzr, line, nextID);
+        printf("\n%d %s %s", yzr->ID, yzr->name, yzr->surname);
 
     }
     
@@ -172,13 +203,6 @@ void takeYazarlar_user(YAZARLAR **yazar, int nextID){
             exit(-1);
         } 
 
-        yzr->next = NULL;
-        YAZARLAR *curr = *yazar;
-        while(curr->next != NULL){
-            curr = curr->next;
-        }
-        curr->next = yzr;
-
         yzr->ID = nextID;
 
         printf("Yazar bilfilerini giriniz(sirasiyle ad, soyad.): ");
@@ -186,7 +210,21 @@ void takeYazarlar_user(YAZARLAR **yazar, int nextID){
         fp = fopen("Yazarlar.csv", "a");
         printf("%d %s %s", yzr->ID, yzr->name, yzr->surname);
         fprintf(fp, "\n%d,%s,%s", yzr->ID, yzr->name, yzr->surname);
+
+        yzr->next = NULL;
+        if(*yazar==NULL){
+            *yazar=yzr;
+            return;
+        }
+        
+        YAZARLAR *curr = *yazar;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = yzr;
+        
         fclose(fp);
+        return;
 }
 
 void printYazarlar(YAZARLAR **yazar){
@@ -232,6 +270,8 @@ int deleteYazarlar(YAZARLAR **yazar){
     return found;
 }
 
+
+
 void takeOgrenciler_file(OGRENCILER **ogrenci){
     FILE *fp;
     //int i=0;
@@ -246,19 +286,10 @@ void takeOgrenciler_file(OGRENCILER **ogrenci){
     }
     ogr->next = NULL;
     ogr->prev = NULL;
-    sp = strtok(line, ",");
-    ogr->ID = atof(sp);
 
-    sp = strtok(NULL, ",");
-    strcpy(ogr->name, sp);
-    
-    sp = strtok(NULL, ",");
-    strcpy(ogr->surname, sp);
+    Split_Data_o(ogr, line);
 
-    sp = strtok(NULL, "\n");
-    ogr->scor = atof(sp); 
-
-    printf("%d %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+    printf("\n\n%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
 
     while(fgets(line, 100, fp) != NULL){
 
@@ -275,19 +306,9 @@ void takeOgrenciler_file(OGRENCILER **ogrenci){
         curr->next = ogr;
         ogr->prev = curr;
 
-        sp = strtok(line, ",");
-        ogr->ID = atof(sp);
+        Split_Data_o(ogr, line);
 
-        sp = strtok(NULL, ",");
-        strcpy(ogr->name, sp);
-
-        sp = strtok(NULL, ",");
-        strcpy(ogr->surname, sp);
-
-        sp = strtok(NULL, "\n");
-        ogr->scor = atof(sp);
-
-        printf("\n%d %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+        printf("\n%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
 
     }
 }
@@ -308,10 +329,10 @@ void takeOgrenciler_user(OGRENCILER **ogrenci){
     ogr->prev = curr;
     ogr->scor = 100;
     printf("Ogrenci bilfilerini giriniz(sirasiyle ad, soyad, numara.): ");
-    scanf("%s %s %d", ogr->name, ogr->surname, &ogr->ID);
+    scanf("%s %s %s", ogr->name, ogr->surname, ogr->ID);
     fp = fopen("Ogrenciler.csv", "a");
-    printf("%d %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
-    fprintf(fp, "\n%d,%s,%s,%d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+    printf("%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+    fprintf(fp, "\n%s,%s,%s,%d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
     fclose(fp);
 }
 
@@ -320,12 +341,12 @@ void printOgrenciler(OGRENCILER **ogrenci){
     FILE *fp;
     fp = fopen("Ogrenciler.csv","w");
     while(curr->next != NULL){
-        printf("%d %s %s %d\n", curr->ID, curr->name, curr->surname, curr->scor);
+        printf("%s %s %s %d\n", curr->ID, curr->name, curr->surname, curr->scor);
         fprintf(fp, "%d,%s,%s,%d\n", curr->ID, curr->name, curr->surname, curr->scor);
         curr = curr->next;
     }
-    printf("%d %s %s %d", curr->ID, curr->name, curr->surname, curr->scor);
-    fprintf(fp, "%d,%s,%s,%d", curr->ID, curr->name, curr->surname, curr->scor);
+    printf("%s %s %s %d", curr->ID, curr->name, curr->surname, curr->scor);
+    fprintf(fp, "%s,%s,%s,%d", curr->ID, curr->name, curr->surname, curr->scor);
     fclose(fp);
 }
 
@@ -356,3 +377,142 @@ int deleteOgrenciler(OGRENCILER **ogrenci){
     }
     return found;
 }
+
+
+
+void takeKitaplar_file(KITAP **kitap){
+
+    FILE *fp;
+    //int i=0;
+    char line[100];
+    char *sp;
+
+    fp = fopen("Kitaplar.csv","r+");
+    KITAP *ktp = (KITAP*)malloc(sizeof(KITAP));
+
+    if(fgets(line, 100, fp) != NULL){
+        *kitap = ktp;
+    }
+    ktp->next = NULL;
+
+    Split_Data_k(ktp,line); 
+
+    printf("\n\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+
+    while(fgets(line, 100, fp) != NULL){
+
+        KITAP *ktp = (KITAP*)malloc(sizeof(KITAP));
+        if(ktp == NULL){
+            exit(-1);
+        }
+
+        ktp->next = NULL;
+        KITAP *curr = *kitap;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = ktp;
+
+        Split_Data_k(ktp,line);  
+
+        printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+
+    }
+}
+
+void takeKitapYazar_file(KITAPYAZAR **kityaz){
+    FILE *fp;
+    //int i=0;
+    int nextID;
+    char line[100];
+    char *sp;
+
+    fp = fopen("KitapYazar.csv", "r+");
+    KITAPYAZAR *kit = (KITAPYAZAR*)malloc(sizeof(KITAPYAZAR));
+
+    if(fgets(line, 100, fp) != NULL){
+        *kityaz = kit;
+    }
+    kit->next = NULL;
+    
+    Split_Data_ky(kit, line);
+    
+    printf("\n\n\n%s %d", kit->ISBN, kit->yazarID);
+    
+
+
+    while(fgets(line, 100, fp) != NULL){
+
+        KITAPYAZAR *kit = (KITAPYAZAR*)malloc(sizeof(KITAPYAZAR));
+        if(kit == NULL){
+            exit(-1);
+        }
+
+        kit->next = NULL;
+        KITAPYAZAR *curr = *kityaz;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = kit;
+
+        Split_Data_ky(kit, line);
+        printf("\n%s %d", kit->ISBN, kit->yazarID);
+
+    }
+    
+    fclose(fp);
+}
+
+void Split_Data_y(YAZARLAR* yzr, char line[100], int nextID){
+	char *sp;
+
+	sp = strtok(line, ",");
+    yzr->ID = atof(sp);
+    nextID = yzr->ID + 1;
+
+    sp = strtok(NULL, ",");
+    strcpy(yzr->name, sp);
+    
+    sp = strtok(NULL, "\n");
+    strcpy(yzr->surname, sp);
+}
+
+void Split_Data_o(OGRENCILER* ogr, char line[100]){
+	char *sp;
+
+	sp = strtok(line, ",");
+    strcpy(ogr->ID, sp);
+
+    sp = strtok(NULL, ",");
+    strcpy(ogr->name, sp);
+    
+    sp = strtok(NULL, ",");
+    strcpy(ogr->surname, sp);
+
+    sp = strtok(NULL, "\n");
+    ogr->scor = atof(sp); 
+}
+
+void Split_Data_k(KITAP* ktp, char line[100]){
+	char *sp;
+
+	sp = strtok(line, ",");
+    strcpy(ktp->kitapAdi, sp);
+
+    sp = strtok(NULL, ",");
+    strcpy(ktp->ISBN, sp);
+
+    sp = strtok(NULL, "\n");
+    ktp->adet = atof(sp); 
+}
+
+void Split_Data_ky(KITAPYAZAR* kit, char line[100]){
+	char *sp;
+
+	sp = strtok(line, ",");
+    strcpy(kit->ISBN, sp);
+
+    sp = strtok(NULL, "\n");
+    kit->yazarID = atof(sp); 
+}
+

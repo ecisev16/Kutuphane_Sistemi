@@ -1,0 +1,99 @@
+void Split_Data(data* holder,char line[100]){
+    int i=0;
+    char data1[30];
+    char data2[30];
+    char data3[30];
+    char data4[30];
+    char data5[30];
+
+    char stop=line[i];
+	char *fp;
+
+    while(line[i]!='\n'){
+        if(line[i]==','){
+            stop=line[i];
+
+            fp=strtok(line,stop);
+	        strcpy(data1,fp);
+        }
+    }
+
+    /*while((line[i]!=',')&&(line[i]!='\n')){
+        i++;
+    }
+    char stop=line[i];
+	char *fp;
+
+	fp=strtok(line,stop);
+	strcpy(data1,fp);
+
+    while((line[i]!=',')&&(line[i]!='\n')){
+        i++;
+    }
+    char stop=line[i];
+
+	fp=strtok(NULL,stop);
+	strcpy(data2,fp);
+
+	token=strtok(NULL,delimiter);
+	token[strlen(token)-1]='\0';
+
+	strcpy(holder->department,token);
+    */
+}
+
+void takeYazarlar_user(YAZARLAR **yazar, int nextID){
+        FILE *fp;
+        YAZARLAR *yzr = (YAZARLAR*)malloc(sizeof(YAZARLAR));
+
+        if(yzr == NULL){
+            exit(-1);
+        } 
+
+        yzr->ID = nextID;
+
+        printf("Yazar bilfilerini giriniz(sirasiyle ad, soyad.): ");
+        scanf("%s %s", yzr->name, yzr->surname);
+        fp = fopen("Yazarlar.csv", "a");
+        printf("%d %s %s", yzr->ID, yzr->name, yzr->surname);
+        fprintf(fp, "\n%d,%s,%s", yzr->ID, yzr->name, yzr->surname);
+
+        yzr->next = NULL;
+        if(*yazar==NULL){
+            *yazar=yzr;
+
+        }
+        
+        YAZARLAR *curr = *yazar;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = yzr;
+        
+        fclose(fp);
+        return;
+}
+
+void takeYazarlar_user(YAZARLAR **yazar, int nextID){
+        FILE *fp;
+        YAZARLAR *yzr = (YAZARLAR*)malloc(sizeof(YAZARLAR));
+
+        if(yzr == NULL){
+            exit(-1);
+        } 
+
+        yzr->next = NULL;
+        YAZARLAR *curr = *yazar;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = yzr;
+        yzr->ID = nextID;
+
+        printf("Yazar bilfilerini giriniz(sirasiyle ad, soyad.): ");
+        scanf("%s %s", yzr->name, yzr->surname);
+        fp = fopen("Yazarlar.csv", "a");
+        printf("%d %s %s", yzr->ID, yzr->name, yzr->surname);
+        fprintf(fp, "\n%d,%s,%s", yzr->ID, yzr->name, yzr->surname);
+        fclose(fp);
+}
