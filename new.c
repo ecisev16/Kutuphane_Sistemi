@@ -40,9 +40,9 @@ typedef struct kitapYazar{
 }KITAPYAZAR;
 
 typedef struct tarih{
-    int gun:5;
-    int ay:4;
-    int yil:12;
+    int gun;
+    int ay;
+    int yil;
 }TARIH;
 
 typedef struct kitapOdunc{
@@ -50,6 +50,7 @@ typedef struct kitapOdunc{
     char ogrID[10];
     int islemTipi:1;
     struct tarih islemTarihi;
+    struct kitapOdunc *next;
 }KITAPODUNC;
 
 int takeYazarlar_file(YAZARLAR **);
@@ -66,6 +67,12 @@ void Split_Data_o(OGRENCILER*, char line[100]);
 void Split_Data_k(KITAP*, char line[100]);
 void Split_Data_ky(KITAPYAZAR* , char line[100]);
 void takeKitapYazar_file(KITAPYAZAR **kityaz);
+void Split_Data_ko(KITAPODUNC*,char line[100]);
+void takeKitapOdunc_file(KITAPODUNC **kitOd);
+void showYazar(YAZARLAR **, KITAPYAZAR ** , KITAP ** );
+void showOgrenci(OGRENCILER **, KITAPODUNC ** );
+void showRaftakiler(KITAPODUNC **);
+void showOgrenci2(OGRENCILER **, KITAPODUNC ** , KITAP **);
 
 int main(){
     
@@ -73,6 +80,7 @@ int main(){
     OGRENCILER *ogrenci = NULL;
     KITAP *kitap = NULL;
     KITAPYAZAR *kityaz = NULL;
+    KITAPODUNC *kitOd = NULL;
 
     int nextID;
     int option;
@@ -84,6 +92,7 @@ int main(){
     takeOgrenciler_file(&ogrenci);
     takeKitaplar_file(&kitap);
     takeKitapYazar_file(&kityaz);
+    takeKitapOdunc_file(&kitOd);
 
     while(option != 15){
 
@@ -107,10 +116,16 @@ int main(){
 
                 break;           
             break;
-            case 2 : break;
+            case 2 : 
+                //showOgrenci(&ogrenci, &kitOd);
+                showOgrenci2(&ogrenci, &kitOd, &kitap);
+                
+            break;
             case 3 : break;
             case 4 : break;
-            case 5 : break;
+            case 5 :
+                printOgrenciler(&ogrenci);
+            break;
             case 6 : break;
             case 7 : break;
             case 8 : break;
@@ -136,7 +151,9 @@ int main(){
                 }
 
                 break;
-            case 14 : break;  // printYazarlar(&yazar);
+            case 14 :
+                showYazar(&yazar, &kityaz, &kitap);
+            break;  // printYazarlar(&yazar);
             case 15 : break;
 
 
@@ -168,7 +185,7 @@ int takeYazarlar_file(YAZARLAR **yazar){
     
     Split_Data_y(yzr, line, nextID);
     
-    printf("\n\n\n%d %s %s", yzr->ID, yzr->name, yzr->surname);
+    //printf("\n\n\n%d %s %s", yzr->ID, yzr->name, yzr->surname);
     
 
 
@@ -187,7 +204,7 @@ int takeYazarlar_file(YAZARLAR **yazar){
         curr->next = yzr;
 
         Split_Data_y(yzr, line, nextID);
-        printf("\n%d %s %s", yzr->ID, yzr->name, yzr->surname);
+        //printf("\n%d %s %s", yzr->ID, yzr->name, yzr->surname);
 
     }
     
@@ -198,18 +215,20 @@ int takeYazarlar_file(YAZARLAR **yazar){
 void takeYazarlar_user(YAZARLAR **yazar, int nextID){
         FILE *fp;
         YAZARLAR *yzr = (YAZARLAR*)malloc(sizeof(YAZARLAR));
-
         if(yzr == NULL){
             exit(-1);
         } 
-
         yzr->ID = nextID;
+
+
 
         printf("Yazar bilfilerini giriniz(sirasiyle ad, soyad.): ");
         scanf("%s %s", yzr->name, yzr->surname);
         fp = fopen("Yazarlar.csv", "a");
         printf("%d %s %s", yzr->ID, yzr->name, yzr->surname);
         fprintf(fp, "\n%d,%s,%s", yzr->ID, yzr->name, yzr->surname);
+
+
 
         yzr->next = NULL;
         if(*yazar==NULL){
@@ -270,17 +289,69 @@ int deleteYazarlar(YAZARLAR **yazar){
     return found;
 }
 
+void showYazar(YAZARLAR **yazar, KITAPYAZAR ** kityaz, KITAP ** kitap){
+
+    char name[30];
+    char surname[30];
+    int found = 0;
+    int found2 = 0;
+    printf("aramak istediğiniz yazar adini ve soyadini giriniz: ");
+    scanf("%s %s", name, surname);
+
+    YAZARLAR *curr = *yazar;
+    YAZARLAR *prev = NULL;
+
+    KITAPYAZAR *curr2 = *kityaz;
+    KITAPYAZAR *prev2 = NULL;
+
+    KITAP *curr3 = *kitap;
+    KITAP *prev3 = NULL;
+
+    while((curr!=NULL) && !found){
+        if((strcmp(curr->name, name) == 0)&&(strcmp(curr->surname, surname) == 0)){ //&&(strcmp(curr->surname, surname) == 0)  (strcmp(curr->name, name) == 0)&&
+            found = 1;
+            printf("\nbuldum");
+            while(curr2!=NULL){
+                if(curr->ID == curr2->yazarID){
+                    printf("\nbuldum2:");
+                    curr3 = *kitap;
+                    found2 = 0;
+                    while((curr3!=NULL) && !found2){
+                        if(strcmp(curr3->ISBN, curr2->ISBN) == 0){
+                            found2 = 1;
+                            printf("%s\n", curr3->kitapAdi);
+                        }
+                        prev3 = curr3;
+                        curr3 = curr3->next;
+                    }
+                    
+                }
+                prev2 = curr2;
+                curr2 = curr2->next;
+            }
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    /*free(curr);
+    free(curr2);
+    free(curr3);
+    free(prev);
+    free(prev2);
+    free(prev3);*/
+    return;
+}
 
 
 void takeOgrenciler_file(OGRENCILER **ogrenci){
     FILE *fp;
-    //int i=0;
-    char line[100];
-    char *sp;
-
-    fp = fopen("Ogrenciler.csv","r+");
     OGRENCILER *ogr = (OGRENCILER*)malloc(sizeof(OGRENCILER));
+    if(ogr == NULL){
+        exit(-1);
+    }
 
+    char line[100];
+    fp = fopen("Ogrenciler.csv","r+");
     if(fgets(line, 100, fp) != NULL){
         *ogrenci = ogr;
     }
@@ -289,7 +360,7 @@ void takeOgrenciler_file(OGRENCILER **ogrenci){
 
     Split_Data_o(ogr, line);
 
-    printf("\n\n%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+    //printf("\n\n%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
 
     while(fgets(line, 100, fp) != NULL){
 
@@ -308,7 +379,7 @@ void takeOgrenciler_file(OGRENCILER **ogrenci){
 
         Split_Data_o(ogr, line);
 
-        printf("\n%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+        //printf("\n%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
 
     }
 }
@@ -320,7 +391,18 @@ void takeOgrenciler_user(OGRENCILER **ogrenci){
         exit(-1);
     } 
 
+    printf("Ogrenci bilfilerini giriniz(sirasiyle ad, soyad, numara.): ");
+    scanf("%s %s %s", ogr->name, ogr->surname, ogr->ID);
+    fp = fopen("Ogrenciler.csv", "a");
+    printf("%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+    fprintf(fp, "\n%s,%s,%s,%d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+
     ogr->next = NULL;
+    if(*ogrenci==NULL){
+        *ogrenci=ogr;
+        return;
+    }
+
     OGRENCILER *curr = *ogrenci;
     while(curr->next != NULL){
         curr = curr->next;
@@ -328,11 +410,8 @@ void takeOgrenciler_user(OGRENCILER **ogrenci){
     curr->next = ogr;
     ogr->prev = curr;
     ogr->scor = 100;
-    printf("Ogrenci bilfilerini giriniz(sirasiyle ad, soyad, numara.): ");
-    scanf("%s %s %s", ogr->name, ogr->surname, ogr->ID);
-    fp = fopen("Ogrenciler.csv", "a");
-    printf("%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
-    fprintf(fp, "\n%s,%s,%s,%d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
+
+    
     fclose(fp);
 }
 
@@ -342,7 +421,7 @@ void printOgrenciler(OGRENCILER **ogrenci){
     fp = fopen("Ogrenciler.csv","w");
     while(curr->next != NULL){
         printf("%s %s %s %d\n", curr->ID, curr->name, curr->surname, curr->scor);
-        fprintf(fp, "%d,%s,%s,%d\n", curr->ID, curr->name, curr->surname, curr->scor);
+        fprintf(fp, "%s,%s,%s,%d\n", curr->ID, curr->name, curr->surname, curr->scor);
         curr = curr->next;
     }
     printf("%s %s %s %d", curr->ID, curr->name, curr->surname, curr->scor);
@@ -378,6 +457,42 @@ int deleteOgrenciler(OGRENCILER **ogrenci){
     return found;
 }
 
+void showOgrenci(OGRENCILER **ogrenci, KITAPODUNC ** kitOd){
+
+    char name[30];
+    char surname[30];
+    int found = 0;
+    int found2 = 0;
+    printf("aramak istediğiniz ogrenci adini ve soyadini giriniz: ");
+    scanf("%s %s", name, surname);
+
+    OGRENCILER *curr = *ogrenci;
+    OGRENCILER *prev = NULL;
+
+    KITAPODUNC *curr2 = *kitOd;
+    KITAPODUNC *prev2 = NULL;
+
+    while((curr!=NULL) && !found){
+        if((strcmp(curr->name, name) == 0)&&(strcmp(curr->surname, surname) == 0)){ //&&(strcmp(curr->surname, surname) == 0)  (strcmp(curr->name, name) == 0)&&
+            found = 1;
+            printf("\nbuldum");
+            while(curr2!=NULL){
+                if(strcmp(curr->ID,curr2->ogrID)==0){
+                    printf("\nbuldum2:");
+                    printf("\n%s %d", curr2->etiketNo, curr2->islemTipi);
+                    
+                }
+                prev2 = curr2;
+                curr2 = curr2->next;
+            }
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    
+
+    return;
+}
 
 
 void takeKitaplar_file(KITAP **kitap){
@@ -397,7 +512,7 @@ void takeKitaplar_file(KITAP **kitap){
 
     Split_Data_k(ktp,line); 
 
-    printf("\n\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+    //printf("\n\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
 
     while(fgets(line, 100, fp) != NULL){
 
@@ -415,7 +530,7 @@ void takeKitaplar_file(KITAP **kitap){
 
         Split_Data_k(ktp,line);  
 
-        printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+        //printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
 
     }
 }
@@ -462,6 +577,69 @@ void takeKitapYazar_file(KITAPYAZAR **kityaz){
     
     fclose(fp);
 }
+
+void takeKitapOdunc_file(KITAPODUNC **kitOd){
+    FILE *fp;
+    //int i=0;
+    int nextID;
+    char line[100];
+    char *sp;
+
+    fp = fopen("KitapOdunc.csv", "r+");
+    KITAPODUNC *oduc = (KITAPODUNC*)malloc(sizeof(KITAPODUNC));
+
+    if(fgets(line, 100, fp) != NULL){
+        *kitOd = oduc;
+    }
+    oduc->next = NULL;
+    
+    Split_Data_ko(oduc,line);
+    
+    //printf("\n\n\n%s %s %d %d.%d.%d", oduc->etiketNo, oduc->ogrID, oduc->islemTipi, oduc->islemTarihi.gun, oduc->islemTarihi.ay, oduc->islemTarihi.yil);
+    
+
+
+    while(fgets(line, 100, fp) != NULL){
+
+        KITAPODUNC *oduc = (KITAPODUNC*)malloc(sizeof(KITAPODUNC));
+        if(oduc == NULL){
+            exit(-1);
+        }
+
+        oduc->next = NULL;
+        KITAPODUNC *curr = *kitOd;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = oduc;
+
+        Split_Data_ko(oduc,line);
+        //printf("\n%s %s %d %d.%d.%d", oduc->etiketNo, oduc->ogrID, oduc->islemTipi, oduc->islemTarihi.gun, oduc->islemTarihi.ay, oduc->islemTarihi.yil);
+
+    }
+    
+    fclose(fp);
+}
+
+void showRaftakiler(KITAPODUNC **kitOd){
+    
+    KITAPODUNC *curr = *kitOd;
+    KITAPODUNC *prev = NULL;
+
+    while(curr!=NULL){
+        if(curr->islemTipi == 0){
+            printf("\nbuldum");
+            printf("\n%s", curr->etiketNo);
+            
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    
+
+    return;
+}
+
 
 void Split_Data_y(YAZARLAR* yzr, char line[100], int nextID){
 	char *sp;
@@ -516,3 +694,74 @@ void Split_Data_ky(KITAPYAZAR* kit, char line[100]){
     kit->yazarID = atof(sp); 
 }
 
+void Split_Data_ko(KITAPODUNC* kitOd, char line[100]){
+	char *sp;
+
+	sp = strtok(line, ",");
+    strcpy(kitOd->etiketNo, sp);
+
+    sp = strtok(NULL, ",");
+    strcpy(kitOd->ogrID, sp); 
+
+    sp = strtok(NULL, ",");
+    kitOd->islemTipi = atof(sp); 
+
+    sp = strtok(NULL, ".");
+    kitOd->islemTarihi.gun = atof(sp); 
+
+    sp = strtok(NULL, ".");
+    kitOd->islemTarihi.ay = atof(sp); 
+
+    sp = strtok(NULL, "\n");
+    kitOd->islemTarihi.yil = atof(sp); 
+
+}
+
+void showOgrenci2(OGRENCILER **ogrenci, KITAPODUNC ** kitOd, KITAP **kitap){
+
+    char name[30];
+    char surname[30];
+    int found = 0;
+    int found2 = 0;
+    char *token;
+    printf("aramak istediğiniz ogrenci adini ve soyadini giriniz: ");
+    scanf("%s %s", name, surname);
+
+    OGRENCILER *curr = *ogrenci;
+    OGRENCILER *prev = NULL;
+
+    KITAPODUNC *curr2 = *kitOd;
+    KITAPODUNC *prev2 = NULL;
+
+    KITAP *curr3 = *kitap;
+    KITAP *prev3 = NULL;
+
+    while((curr!=NULL) && !found){
+        if((strcmp(curr->name, name) == 0)&&(strcmp(curr->surname, surname) == 0)){ //&&(strcmp(curr->surname, surname) == 0)  (strcmp(curr->name, name) == 0)&&
+            found = 1;
+            printf("\nbuldum");
+            while(curr2!=NULL){
+                if(strcmp(curr->ID,curr2->ogrID)==0){
+                    printf("\nbuldum2:");
+                    found2 = 0;
+                    curr3 = *kitap;
+                    prev3 = NULL;
+                    while((curr3!=NULL) && !found2){
+                        strcpy(token,curr2->etiketNo);
+                        token = strtok(token,"_");
+                        if(strcmp(curr3->ISBN, token) == 0){
+                            found2 = 1;
+                            printf("%s\n", curr3->kitapAdi);
+                        }
+                        prev3 = curr3;
+                        curr3 = curr3->next;
+                    }
+                }
+                prev2 = curr2;
+                curr2 = curr2->next;
+            }
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+}

@@ -97,3 +97,14 @@ void takeYazarlar_user(YAZARLAR **yazar, int nextID){
         fprintf(fp, "\n%d,%s,%s", yzr->ID, yzr->name, yzr->surname);
         fclose(fp);
 }
+
+found2 = 0;
+                    while((curr3!=NULL) && !found2){
+                        token = strtok(curr2->etiketNo,'_');
+                        if(strcmp(curr3->ISBN, token) == 0){
+                            found2 = 1;
+                            printf("%s\n", curr3->kitapAdi);
+                        }
+                        prev3 = curr3;
+                        curr3 = curr3->next;
+                    }
