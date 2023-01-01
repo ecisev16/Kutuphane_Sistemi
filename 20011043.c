@@ -562,21 +562,23 @@ void takeKitaplar_file(KITAP **kitap){
     ktp->next = NULL;
     ktp->head = NULL;
     Split_Data_k(ktp,line); 
+    KITAP *curr2 = *kitap;
     KITAP *currH = *kitap;
     //KITAP *curr = *kitap;
     //currH->head = ktp->head;
     for(j=0;j<ktp->adet;j++){
 
         //currH->head = ktp->head;
-        takeOrnek(&ktp->head);
-        currH->head = ktp->head;
+        currH->head = curr2->head;
+        takeOrnek(&curr2->head);
+
         while(currH->head->next != NULL){
             i++;
             currH->head = currH->head->next;
         }
 
         strcpy(currH->head->Durum,"rafta");
-        sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+        sprintf(currH->head->EtiketNo, "\n%s_%d", curr2->ISBN, i);
         i=1;
         printf("%s", currH->head->EtiketNo);
     }  
@@ -600,18 +602,17 @@ void takeKitaplar_file(KITAP **kitap){
         Split_Data_k(ktp,line);
 
         currH = ktp;
-        KITAP *curr2 = *kitap;
 
         for(j=0;j<ktp->adet;j++){
-            currH->head = curr2->head;
-            takeOrnek(&curr2->head);
+            //currH->head = ktp->head;
+            takeOrnek(&ktp->head);
             while(currH->head->next != NULL){
                 i++;
                 currH->head = currH->head->next;
             }
             
             strcpy(currH->head->Durum,"rafta");
-            sprintf(currH->head->EtiketNo, "\n%s_%d", curr2->ISBN, i);
+            sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
             i=1;
             printf("%s", currH->head->EtiketNo);
         }  
