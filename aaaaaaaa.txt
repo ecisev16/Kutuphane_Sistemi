@@ -107,4 +107,79 @@ found2 = 0;
                         }
                         prev3 = curr3;
                         curr3 = curr3->next;
-                    }
+    
+    void takeKitaplar_file(KITAP **kitap){
+
+    FILE *fp;
+    //int i=0;
+    char line[100];
+    char *sp;
+    int i=1;
+    int j=0;
+
+    fp = fopen("Kitaplar.csv","r+");
+    KITAP *ktp = (KITAP*)malloc(sizeof(KITAP));
+
+    if(fgets(line, 100, fp) != NULL){
+        *kitap = ktp;
+    }
+    ktp->next = NULL;
+    ktp->head = NULL;
+    Split_Data_k(ktp,line); 
+    KITAP *currH = *kitap;
+    //KITAP *curr = *kitap;
+    //currH->head = ktp->head;
+    for(j=0;j<ktp->adet;j++){
+
+        //currH->head = ktp->head;
+        takeOrnek(&ktp->head);
+        currH->head = ktp->head;
+        while(currH->head->next != NULL){
+            i++;
+            currH->head = currH->head->next;
+        }
+
+        strcpy(currH->head->Durum,"rafta");
+        sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+        i=1;
+        printf("%s", currH->head->EtiketNo);
+    }  
+    //i = 1;
+    //printf("\n\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+
+    while(fgets(line, 100, fp) != NULL){
+
+        KITAP *ktp = (KITAP*)malloc(sizeof(KITAP));
+        if(ktp == NULL){
+            exit(-1);
+        }
+
+        ktp->next = NULL;
+        ktp->head = NULL;
+        KITAP *curr = *kitap;
+        while(curr->next != NULL){
+            curr = curr->next;
+        }
+        curr->next = ktp;
+        Split_Data_k(ktp,line);
+
+        currH = ktp;
+
+        for(j=0;j<ktp->adet;j++){
+            //currH->head = ktp->head;
+            takeOrnek(&ktp->head);
+            while(currH->head->next != NULL){
+                i++;
+                currH->head = currH->head->next;
+            }
+            
+            strcpy(currH->head->Durum,"rafta");
+            sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+            i=1;
+            printf("%s", currH->head->EtiketNo);
+        }  
+        //i=1;
+        //printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+
+    }
+}
