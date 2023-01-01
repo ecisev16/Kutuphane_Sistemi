@@ -75,6 +75,7 @@ void teslimInfo(OGRENCI **, KITAPODUNC **);
 void takeKitaplar_user(KITAP **, YAZAR **, KITAPYAZAR **);
 void takeYazarlar_user(YAZAR **, char name[30], char surname[30]);
 void kitapInfo(KITAP **, KITAPYAZAR **, YAZAR **);
+void takeOrnek(KITAPORNEK **);
 
 int main(){
     YAZAR *yazar = NULL;
@@ -82,6 +83,7 @@ int main(){
     KITAP *kitap = NULL;
     KITAPYAZAR *kityaz = NULL;
     KITAPODUNC *kitOd = NULL;
+    KITAPORNEK *kitOrn = NULL;
 
 
     int nextID;
@@ -548,6 +550,8 @@ void takeKitaplar_file(KITAP **kitap){
     //int i=0;
     char line[100];
     char *sp;
+    int i=1;
+    int j=0;
 
     fp = fopen("Kitaplar.csv","r+");
     KITAP *ktp = (KITAP*)malloc(sizeof(KITAP));
@@ -556,9 +560,27 @@ void takeKitaplar_file(KITAP **kitap){
         *kitap = ktp;
     }
     ktp->next = NULL;
-
+    ktp->head = NULL;
     Split_Data_k(ktp,line); 
+    KITAP *currH = *kitap;
+    //KITAP *curr = *kitap;
+    //currH->head = ktp->head;
+    for(j=0;j<ktp->adet;j++){
 
+        //currH->head = ktp->head;
+        takeOrnek(&ktp->head);
+        currH->head = ktp->head;
+        while(currH->head->next != NULL){
+            i++;
+            currH->head = currH->head->next;
+        }
+
+        strcpy(currH->head->Durum,"rafta");
+        sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+        i=1;
+        printf("%s", currH->head->EtiketNo);
+    }  
+    //i = 1;
     //printf("\n\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
 
     while(fgets(line, 100, fp) != NULL){
@@ -569,14 +591,31 @@ void takeKitaplar_file(KITAP **kitap){
         }
 
         ktp->next = NULL;
+        ktp->head = NULL;
         KITAP *curr = *kitap;
         while(curr->next != NULL){
             curr = curr->next;
         }
         curr->next = ktp;
+        Split_Data_k(ktp,line);
 
-        Split_Data_k(ktp,line);  
+        currH = ktp;
+        KITAP *curr2 = *kitap;
 
+        for(j=0;j<ktp->adet;j++){
+            currH->head = curr2->head;
+            takeOrnek(&curr2->head);
+            while(currH->head->next != NULL){
+                i++;
+                currH->head = currH->head->next;
+            }
+            
+            strcpy(currH->head->Durum,"rafta");
+            sprintf(currH->head->EtiketNo, "\n%s_%d", curr2->ISBN, i);
+            i=1;
+            printf("%s", currH->head->EtiketNo);
+        }  
+        //i=1;
         //printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
 
     }
@@ -827,41 +866,40 @@ void takeOrnek(KITAPORNEK **kitapOrnek){
 
     //strcpy(kitOrn->Durum, durum);
     //strcpy(kitOrn->EtiketNo, etiketNo);
-    kitOrn->next = NULL;
+    //kitOrn->next = NULL;
     //strcpy(kitOrn->Durum,durum);
     //strcpy(kitOrn->EtiketNo,etiketNo);
     if(*kitapOrnek==NULL){
         *kitapOrnek = kitOrn;
+        kitOrn->next = NULL;
+        printf("bbbbbbbb");
         //printf("%s %s", kitOrn->Durum, kitOrn->EtiketNo);
         return;
     }
-
     KITAPORNEK *curr = *kitapOrnek;
     while(curr->next != NULL){
         curr = curr->next;
+        printf("aaaaaaaaaaaaaaaa");
     }
-    curr->next = NULL;
+    curr->next = kitOrn;
+    kitOrn->next = NULL;
+    printf("\n11111111");
     //printf("%s %s", kitOrn->Durum, kitOrn->EtiketNo);
-
-
+    return ;
 }
 
 void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     FILE *fp;
     int found = 0;
-    int i=0;
+    int i=1;
     char kitName[50];
     char yazName[50];
     char yazSurname[50];
+    int yazarID;
     
 
-    //KITAPYAZAR *kity = (KITAPYAZAR*)malloc(sizeof(KITAPYAZAR));
-    //if(kity == NULL){
-    //    exit(-1);
-    //} 
-
     printf("Kitap adini giriniz: ");
-    gets(kitName);
+    getchar();
     gets(kitName);
     puts(kitName);
 
@@ -877,14 +915,25 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     KITAP *curr3 = *kitap;
     KITAP *prev3 = NULL; 
 
-    while((curr != NULL)&& (found==0)){
+    KITAP *currH = *kitap;
+
+    while((curr != NULL)&& (found==0)){               //curr kitabı tutuyo  //kitap başka bi kitabın kopyası mı?
         if(strcmp(kitName, curr->kitapAdi)==0){
             found = 1;
-            curr->head = NULL; // BURAYI Bİ NOKTADA DEĞİŞTİRMEN LAZIM
+            //curr->head = NULL; // BURAYI Bİ NOKTADA DEĞİŞTİRMEN LAZIM
+            currH->head = curr->head;
             takeOrnek(&curr->head);
+            //strcpy(curr->head->EtiketNo, curr->ISBN);
+            while(currH->head->next != NULL){
+                i++;
+                currH->head = currH->head->next;
+            }
             strcpy(curr->head->Durum,"rafta");
-            strcpy(curr->head->EtiketNo, curr->ISBN);
+            sprintf(currH->head->EtiketNo, "%s_%d", curr->ISBN, i);
+            printf("%s", currH->head->EtiketNo);
             curr->adet++; //dosyaya geri yazdırma kısmı var burdan sonra.
+            //FILE fpkk;
+            //fpkk = fopen("Kitaplar.csv", "w");
             printf("%s kopyasi kutuphaneye eklendi", curr->kitapAdi);
 
         }
@@ -893,6 +942,9 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
 
     }
 
+    if(found == 0){
+
+    
     FILE *fpk;
     KITAP *kit = (KITAP*)malloc(sizeof(KITAP));
     if(kit == NULL){
@@ -915,8 +967,9 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     kit->head = NULL;
     takeOrnek(&kit->head);
     strcpy(kit->head->Durum,"rafta");
-    strcpy(kit->head->EtiketNo, kit->ISBN);
-
+    //strcpy(kit->head->EtiketNo, kit->ISBN); //'_1' falanlı bi ifade eklenmesi lazım sonuna
+    sprintf(kit->head->EtiketNo, "%s_%d", kit->ISBN, 1);
+    printf("%s", kit->head->EtiketNo);
     fpk = fopen("Kitaplar.csv", "a");
     printf("%s %s %d %s %s", kit->kitapAdi, kit->ISBN, kit->adet, kit->head->EtiketNo, kit->head->Durum);
     fprintf(fpk, "\n%s,%s,%d", kit->kitapAdi, kit->ISBN, kit->adet);
@@ -927,6 +980,7 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     while((curr2 != NULL)&&(found==0)){
         if((strcmp(yazName, curr2->name)==0)&&(strcmp(yazSurname, curr2->surname)==0)){
             found = 1;
+            yazarID = curr2->ID;//yazar ID buradan alınabilir
             printf("%s %s yazarin kitaplarina yenisi eklendi", curr2->name, curr2->surname);
         }
         prev2 = curr2;
@@ -949,6 +1003,7 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
         yazcurr->next = yaz;
         yaz->next = NULL;
         yaz->ID = yazcurr->ID + 1;
+        yazarID = yaz->ID;
 
         strcpy(yaz->name, yazName);
         strcpy(yaz->surname, yazSurname);
@@ -958,37 +1013,16 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
         
         fclose(fpy);
 
-        /*KITAP *kit = (KITAP*)malloc(sizeof(KITAP));
-        if(kit == NULL){
-            exit(-1);
-        }
-
-        KITAP *kitcurr = *kitap;
-        while(kitcurr->next!=NULL){
-            kitcurr = kitcurr->next;
-        }
-        kitcurr->next = kit;
-        kit->next = NULL;
-
-        printf("Kitabin ISBN nuramarasini giriniz");
-        scanf("%s", kit->ISBN);
-        strcpy(kit->kitapAdi, kitName);
-        kit->adet = 1;
-        //strcpy(kit->head->EtiketNo, kit->ISBN);
-        //strcat(kit->head->EtiketNo, "_1");
-        kit->head = NULL;
-        takeOrnek(&kit->head);
-        strcpy(kit->head->Durum,"rafta");
-        strcpy(kit->head->EtiketNo, kit->ISBN);
-
-        fpk = fopen("Kitaplar.csv", "a");
-        printf("%s %s %d %s %s", kit->kitapAdi, kit->ISBN, kit->adet, kit->head->EtiketNo, kit->head->Durum);
-        fprintf(fpk, "\n%s,%s,%d", kit->kitapAdi, kit->ISBN, kit->adet);
         
-        fclose(fpk);*/
+    }
+
+    FILE *fpky;
+    fpky = fopen("KitapYazar.csv","a");
+    fprintf(fpky, "\n%s,%d", kit->ISBN,yazarID);
+    fclose(fpky);
+
     }
     
-
 
 
     
@@ -1013,7 +1047,7 @@ void kitapInfo(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
     YAZAR *curr3 = *yazar;
     YAZAR *prev3 = NULL;
 
-    KITAP *curr4 = *kitap
+    KITAP *curr4 = *kitap;
     
     while((curr->next != NULL)&&(found==0)){
         if(strcmp(kitName, curr->kitapAdi)==0){
@@ -1028,7 +1062,7 @@ void kitapInfo(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
                 if(strcmp(curr->ISBN,curr2->ISBN)==0){
                     found2 = 1;
                     while((curr3->next!= NULL)&&(found3==0)){
-                        if(strcmp(curr2->yazarID, curr3->ID)==0){
+                        if(curr2->yazarID, curr3->ID){
                             found3 = 1;
                             printf("\nyazar adi: %s %s", curr3->name, curr3->surname);
                         }
@@ -1071,7 +1105,7 @@ void matchingKitapYazar(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
                 if(strcmp(curr->ISBN,curr2->ISBN)==0){
                     found2 = 1;
                     while((curr3->next!= NULL)&&(found3==0)){
-                        if(strcmp(curr2->yazarID, curr3->ID)==0){
+                        if(curr2->yazarID, curr3->ID){
                             found3 = 1;
                             printf("\nyazar adi: %s %s", curr3->name, curr3->surname);
                         }
