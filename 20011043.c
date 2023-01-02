@@ -74,8 +74,9 @@ void showOgrenci(OGRENCI **, KITAPODUNC ** , KITAP **);
 void teslimInfo(OGRENCI **, KITAPODUNC **);
 void takeKitaplar_user(KITAP **, YAZAR **, KITAPYAZAR **);
 void takeYazarlar_user(YAZAR **, char name[30], char surname[30]);
-void kitapInfo(KITAP **, KITAPYAZAR **, YAZAR **);
+void kitapInfo(KITAP **, KITAPYAZAR **, YAZAR **, char Name[30]);
 void takeOrnek(KITAPORNEK **);
+void insideLinkedlist(KITAP **);
 
 int main(){
     YAZAR *yazar = NULL;
@@ -91,12 +92,14 @@ int main(){
     int option2;
     char name[30];
     char surname[30];
+    char kitName[50];
 
-    printf("Yapmak istediginiz islemin numarasini giriniz.\n\nOGRENCI ISLEMLERI\n\n1- Ogrenci Ekle, Sil, GUncelle\n2- Ogrenci Bilgisi Goruntuleme\n3- Kitap Teslim Etmemis Ogrencileri Listele\4- Cezali Ogrencileri Listele\n5- TUm Ogrencileri Listele\n6- Kitap Odunc Al/Teslim Et\n\nKITAP ISLEMLERI\n\n7- Kitap Ekle, Sil, Guncelle\n8- Kitap Bilgisi Goruntuleme\n9- Raftaki Kitaplari Listele\n10- Zamaninda Teslim Edilmeyen Kitaplari Listele\n11- Kitap-Yazar Eslestir \n12- Kitabin Yazarini Guncelle\n\nYAZAR ISLEMLERI\n\n13- Yazar Ekle, Sil, Guncelle\n14- Yazar Bilgisi Goruntuleme\n\n");
+    printf("\nYapmak istediginiz islemin numarasini giriniz.\n\nOGRENCI ISLEMLERI\n\n1- Ogrenci Ekle, Sil, GUncelle\n2- Ogrenci Bilgisi Goruntuleme\n3- Kitap Teslim Etmemis Ogrencileri Listele\4- Cezali Ogrencileri Listele\n5- TUm Ogrencileri Listele\n6- Kitap Odunc Al/Teslim Et\n\nKITAP ISLEMLERI\n\n7- Kitap Ekle, Sil, Guncelle\n8- Kitap Bilgisi Goruntuleme\n9- Raftaki Kitaplari Listele\n10- Zamaninda Teslim Edilmeyen Kitaplari Listele\n11- Kitap-Yazar Eslestir \n12- Kitabin Yazarini Guncelle\n\nYAZAR ISLEMLERI\n\n13- Yazar Ekle, Sil, Guncelle\n14- Yazar Bilgisi Goruntuleme\n\n");
     scanf("%d", &option);
     nextID = takeYazarlar_file(&yazar);
     takeOgrenciler_file(&ogrenci);
     takeKitaplar_file(&kitap);
+    insideLinkedlist(&kitap);
     takeKitapYazar_file(&kityaz);
     takeKitapOdunc_file(&kitOd);
 
@@ -104,7 +107,7 @@ int main(){
 
         switch(option){
             case 1 :
-                printf("Hangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
+                printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                 scanf("%d", &option2);
                 while(option2!=4){
 
@@ -120,7 +123,7 @@ int main(){
                         break;
                         case 3 : break;
                     }
-                    printf("Hangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
+                    printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                     scanf("%d", &option2);
                 }
 
@@ -138,7 +141,7 @@ int main(){
             break;
             case 6 : break;
             case 7 :
-                printf("Hangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
+                printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                 scanf("%d", &option2);
                 while(option2!=4){
 
@@ -156,21 +159,25 @@ int main(){
                         break;
                         case 3 : break;
                     }
-                    printf("Hangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
+                    printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                     scanf("%d", &option2);
                 }
 
                 break;     
             break;
             case 8 : 
-                kitapInfo(&kitap, &kityaz, &yazar);
+                
+                printf("Aramak istediginiz kitap ismini giriniz: ");
+                getchar();
+                gets(kitName);
+                kitapInfo(&kitap, &kityaz, &yazar, kitName);
             break;
             case 9 : break;
             case 10 : break;
             case 11 : break;
             case 12 : break;
             case 13 : 
-                printf("Hangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
+                printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                 scanf("%d", &option2);
                 while(option2!=4){
 
@@ -199,7 +206,7 @@ int main(){
 
 
         }
-        printf("Yapmak istediginiz islemin numarasini giriniz.\n\nOGRENCI ISLEMLERI\n\n1- Ogrenci Ekle, Sil, GUncelle\n2- Ogrenci Bilgisi Goruntuleme\n3- Kitap Teslim Etmemis Ogrencileri Listele\4- Cezali Ogrencileri Listele\n5- TUm Ogrencileri Listele\n6- Kitap Odunc Al/Teslim Et\n\nKITAP ISLEMLERI\n\n7- Kitap Ekle, Sil, Guncelle\n8- Kitap Bilgisi Goruntuleme\n9- Raftaki Kitaplari Listele\n10- Zamaninda Teslim Edilmeyen Kitaplari Listele\n11- Kitap-Yazar Eslestir \n12- Kitabin Yazarini Guncelle\n\nYAZAR ISLEMLERI\n\n13- Yazar Ekle, Sil, Guncelle\n14- Yazar Bilgisi Goruntuleme\n\n");
+        printf("\nYapmak istediginiz islemin numarasini giriniz.\n\nOGRENCI ISLEMLERI\n\n1- Ogrenci Ekle, Sil, GUncelle\n2- Ogrenci Bilgisi Goruntuleme\n3- Kitap Teslim Etmemis Ogrencileri Listele\4- Cezali Ogrencileri Listele\n5- TUm Ogrencileri Listele\n6- Kitap Odunc Al/Teslim Et\n\nKITAP ISLEMLERI\n\n7- Kitap Ekle, Sil, Guncelle\n8- Kitap Bilgisi Goruntuleme\n9- Raftaki Kitaplari Listele\n10- Zamaninda Teslim Edilmeyen Kitaplari Listele\n11- Kitap-Yazar Eslestir \n12- Kitabin Yazarini Guncelle\n\nYAZAR ISLEMLERI\n\n13- Yazar Ekle, Sil, Guncelle\n14- Yazar Bilgisi Goruntuleme\n\n");
         scanf("%d", &option);
     }
     
@@ -332,7 +339,7 @@ void showYazar(YAZAR **yazar, KITAPYAZAR ** kityaz, KITAP ** kitap){
     char surname[30];
     int found = 0;
     int found2 = 0;
-    printf("aramak istediğiniz yazar adini ve soyadini giriniz: ");
+    printf("\nAramak istediğiniz yazar adini ve soyadini giriniz: ");
     scanf("%s %s", name, surname);
 
     YAZAR *curr = *yazar;
@@ -347,16 +354,19 @@ void showYazar(YAZAR **yazar, KITAPYAZAR ** kityaz, KITAP ** kitap){
     while((curr!=NULL) && !found){
         if((strcmp(curr->name, name) == 0)&&(strcmp(curr->surname, surname) == 0)){ //&&(strcmp(curr->surname, surname) == 0)  (strcmp(curr->name, name) == 0)&&
             found = 1;
-            printf("\nbuldum");
+            //printf("\nbuldum");
+            printf("yazarin ID'si: %d\n", curr->ID);
             while(curr2!=NULL){
                 if(curr->ID == curr2->yazarID){
-                    printf("\nbuldum2:");
+                    //printf("\nbuldum2:");
+                    
                     curr3 = *kitap;
                     found2 = 0;
                     while((curr3!=NULL) && !found2){
                         if(strcmp(curr3->ISBN, curr2->ISBN) == 0){
                             found2 = 1;
-                            printf("%s\n", curr3->kitapAdi);
+                            printf("%s adli kitabi bulunmakta\n", curr3->kitapAdi);
+                            kitapInfo(kitap, kityaz, yazar, curr3->kitapAdi);
                         }
                         prev3 = curr3;
                         curr3 = curr3->next;
@@ -428,11 +438,6 @@ void takeOgrenciler_user(OGRENCI **ogrenci){
         exit(-1);
     } 
 
-    printf("Ogrenci bilfilerini giriniz(sirasiyle ad, soyad, numara.): ");
-    scanf("%s %s %s", ogr->name, ogr->surname, ogr->ID);
-    fp = fopen("Ogrenciler.csv", "a");
-    printf("%s %s %s %d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
-    fprintf(fp, "\n%s,%s,%s,%d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
 
     ogr->next = NULL;
     if(*ogrenci==NULL){
@@ -447,6 +452,12 @@ void takeOgrenciler_user(OGRENCI **ogrenci){
     curr->next = ogr;
     ogr->prev = curr;
     ogr->scor = 100;
+
+    printf("Ogrenci bilgilerini giriniz(sirasiyle ad, soyad, numara.): ");
+    scanf("%s %s %s", ogr->name, ogr->surname, ogr->ID);
+    fp = fopen("Ogrenciler.csv", "a");
+    printf("%s %s adli ogrenci kutuphaneye kaydedilmistir", ogr->name, ogr->surname);
+    fprintf(fp, "\n%s,%s,%s,%d", ogr->ID, ogr->name, ogr->surname, ogr->scor);
 
     
     fclose(fp);
@@ -501,7 +512,7 @@ void showOgrenci(OGRENCI **ogrenci, KITAPODUNC ** kitOd, KITAP **kitap){
     int found = 0;
     int found2 = 0;
     char *token;
-    printf("aramak istediğiniz ogrenci adini ve soyadini giriniz: ");
+    printf("\nAramak istediğiniz ogrenci adini ve soyadini giriniz: ");
     scanf("%s %s", name, surname);
 
     OGRENCI *curr = *ogrenci;
@@ -516,10 +527,13 @@ void showOgrenci(OGRENCI **ogrenci, KITAPODUNC ** kitOd, KITAP **kitap){
     while((curr!=NULL) && !found){
         if((strcmp(curr->name, name) == 0)&&(strcmp(curr->surname, surname) == 0)){ //&&(strcmp(curr->surname, surname) == 0)  (strcmp(curr->name, name) == 0)&&
             found = 1;
-            printf("\nbuldum");
+            //printf("\nbuldum");
+            printf("Ogrenci numarasi: %s\n", curr->ID);
+            printf("Puani: %d\n", curr->scor);
+            printf("Aldigi kitaplar: \n");
             while(curr2!=NULL){
                 if(strcmp(curr->ID,curr2->ogrID)==0){
-                    printf("\nbuldum2:");
+                    //printf("\nbuldum2:");
                     found2 = 0;
                     curr3 = *kitap;
                     prev3 = NULL;
@@ -562,27 +576,23 @@ void takeKitaplar_file(KITAP **kitap){
     ktp->next = NULL;
     ktp->head = NULL;
     Split_Data_k(ktp,line); 
-    KITAP *curr2 = *kitap;
     KITAP *currH = *kitap;
-    //KITAP *curr = *kitap;
     //currH->head = ktp->head;
-    for(j=0;j<ktp->adet;j++){
 
-        //currH->head = ktp->head;
-        currH->head = curr2->head;
-        takeOrnek(&curr2->head);
 
-        while(currH->head->next != NULL){
-            i++;
-            currH->head = currH->head->next;
-        }
+    currH->head = ktp->head;
+    takeOrnek(&ktp->head);
 
-        strcpy(currH->head->Durum,"rafta");
-        sprintf(currH->head->EtiketNo, "\n%s_%d", curr2->ISBN, i);
-        i=1;
-        printf("%s", currH->head->EtiketNo);
-    }  
-    //i = 1;
+    while(currH->head->next != NULL){
+        i++;
+        currH->head = currH->head->next;
+    }
+
+    strcpy(currH->head->Durum,"rafta");
+    sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+    i=1;
+    printf("%s", currH->head->EtiketNo);
+
     //printf("\n\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
 
     while(fgets(line, 100, fp) != NULL){
@@ -603,21 +613,45 @@ void takeKitaplar_file(KITAP **kitap){
 
         currH = ktp;
 
-        for(j=0;j<ktp->adet;j++){
-            //currH->head = ktp->head;
-            takeOrnek(&ktp->head);
+
+        //currH->head = ktp->head;
+        takeOrnek(&ktp->head);
+        while(currH->head->next != NULL){
+            i++;
+            currH->head = currH->head->next;
+        }
+            
+        strcpy(currH->head->Durum,"rafta");
+        sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+        i=1;
+        printf("%s", currH->head->EtiketNo);
+    }  
+        //i=1;
+        //printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+
+    
+}
+
+void insideLinkedlist(KITAP **kitap){
+    KITAP *curr = *kitap;
+    KITAP *currH = *kitap;
+    int i=1;
+    int j;
+    while(curr != NULL){
+        for(j=1;j<curr->adet;j++){ 
+            currH->head = curr->head;
+            takeOrnek(&curr->head);
             while(currH->head->next != NULL){
                 i++;
                 currH->head = currH->head->next;
             }
-            
             strcpy(currH->head->Durum,"rafta");
-            sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+            sprintf(currH->head->EtiketNo, "%s_%d", curr->ISBN, i);
+            printf("\n%s", currH->head->EtiketNo);
             i=1;
-            printf("%s", currH->head->EtiketNo);
-        }  
-        //i=1;
-        //printf("\n%s %s %d", ktp->kitapAdi, ktp->ISBN, ktp->adet);
+        }
+
+        curr = curr->next;
 
     }
 }
@@ -873,18 +907,18 @@ void takeOrnek(KITAPORNEK **kitapOrnek){
     if(*kitapOrnek==NULL){
         *kitapOrnek = kitOrn;
         kitOrn->next = NULL;
-        printf("bbbbbbbb");
+        //printf("bbbbbbbb");
         //printf("%s %s", kitOrn->Durum, kitOrn->EtiketNo);
         return;
     }
     KITAPORNEK *curr = *kitapOrnek;
     while(curr->next != NULL){
         curr = curr->next;
-        printf("aaaaaaaaaaaaaaaa");
+        //printf("aaaaaaaaaaaaaaaa");
     }
     curr->next = kitOrn;
     kitOrn->next = NULL;
-    printf("\n11111111");
+    //printf("\n11111111");
     //printf("%s %s", kitOrn->Durum, kitOrn->EtiketNo);
     return ;
 }
@@ -923,6 +957,7 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
             found = 1;
             //curr->head = NULL; // BURAYI Bİ NOKTADA DEĞİŞTİRMEN LAZIM
             currH->head = curr->head;
+            
             takeOrnek(&curr->head);
             //strcpy(curr->head->EtiketNo, curr->ISBN);
             while(currH->head->next != NULL){
@@ -931,11 +966,11 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
             }
             strcpy(curr->head->Durum,"rafta");
             sprintf(currH->head->EtiketNo, "%s_%d", curr->ISBN, i);
-            printf("%s", currH->head->EtiketNo);
+            printf("Etiket numarasi: %s\n", currH->head->EtiketNo);
             curr->adet++; //dosyaya geri yazdırma kısmı var burdan sonra.
             //FILE fpkk;
             //fpkk = fopen("Kitaplar.csv", "w");
-            printf("%s kopyasi kutuphaneye eklendi", curr->kitapAdi);
+            printf("%s kopyasi kutuphaneye eklendi.\n", curr->kitapAdi);
 
         }
         prev = curr;
@@ -959,7 +994,7 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     kitcurr->next = kit;
     kit->next = NULL;
 
-    printf("Kitabin ISBN nuramarasini giriniz");
+    printf("Kitabin ISBN nuramarasini giriniz: ");
     scanf("%s", kit->ISBN);
     strcpy(kit->kitapAdi, kitName);
     kit->adet = 1;
@@ -970,9 +1005,10 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     strcpy(kit->head->Durum,"rafta");
     //strcpy(kit->head->EtiketNo, kit->ISBN); //'_1' falanlı bi ifade eklenmesi lazım sonuna
     sprintf(kit->head->EtiketNo, "%s_%d", kit->ISBN, 1);
-    printf("%s", kit->head->EtiketNo);
+    printf("Etiket numarasi: %s", kit->head->EtiketNo);
     fpk = fopen("Kitaplar.csv", "a");
-    printf("%s %s %d %s %s", kit->kitapAdi, kit->ISBN, kit->adet, kit->head->EtiketNo, kit->head->Durum);
+    //printf("%s %s %d %s %s", kit->kitapAdi, kit->ISBN, kit->adet, kit->head->EtiketNo, kit->head->Durum);
+    printf("%s adli kitap kutuphaneye eklendi.\n", kit->kitapAdi);
     fprintf(fpk, "\n%s,%s,%d", kit->kitapAdi, kit->ISBN, kit->adet);
         
     fclose(fpk);
@@ -982,7 +1018,7 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
         if((strcmp(yazName, curr2->name)==0)&&(strcmp(yazSurname, curr2->surname)==0)){
             found = 1;
             yazarID = curr2->ID;//yazar ID buradan alınabilir
-            printf("%s %s yazarin kitaplarina yenisi eklendi", curr2->name, curr2->surname);
+            printf("%s %s yazarin kitaplarina eklendi.\n", curr2->name, curr2->surname);
         }
         prev2 = curr2;
         curr2 = curr2->next;
@@ -1029,15 +1065,15 @@ void takeKitaplar_user(KITAP **kitap, YAZAR **yazar, KITAPYAZAR **kityaz){
     
 }
 
-void kitapInfo(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
-    char kitName[30];
+void kitapInfo(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar, char kitName[30]){
+    //char kitName[30];
     int found = 0;
     int found2 = 0;
     int found3 = 0;
-    printf("aramak istediginiz kitap ismini giriniz.");
-    getchar();
-    gets(kitName);
-    puts(kitName);
+    //printf("Aramak istediginiz kitap ismini giriniz: ");
+    //getchar();
+    //gets(kitName);
+    //puts(kitName);
 
     KITAP *curr = *kitap;
     KITAP *prev = NULL;
@@ -1063,15 +1099,17 @@ void kitapInfo(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
                 if(strcmp(curr->ISBN,curr2->ISBN)==0){
                     found2 = 1;
                     while((curr3->next!= NULL)&&(found3==0)){
-                        if(curr2->yazarID, curr3->ID){
+                        if(curr2->yazarID == curr3->ID){
                             found3 = 1;
                             printf("\nyazar adi: %s %s", curr3->name, curr3->surname);
                         }
+                        prev3 = curr3;
+                        curr3 = curr3->next;
                     }
 
                 }
                 prev2 = curr2;
-                curr = curr->next;
+                curr2 = curr2->next;
             }
         }
         prev = curr;
