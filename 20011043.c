@@ -67,7 +67,7 @@ void Split_Data_k(KITAP*, char line[100]);
 void Split_Data_ky(KITAPYAZAR* , char line[100]);
 void takeKitapYazar_file(KITAPYAZAR **kityaz);
 void Split_Data_ko(KITAPODUNC*,char line[100]);
-void takeKitapOdunc_file(KITAPODUNC **kitOd);
+void takeKitapOdunc_file(KITAPODUNC **, KITAP**);
 void showYazar(YAZAR **, KITAPYAZAR ** , KITAP ** );
 void showRaftakiler(KITAPODUNC **);
 void showOgrenci(OGRENCI **, KITAPODUNC ** , KITAP **);
@@ -77,6 +77,9 @@ void takeYazarlar_user(YAZAR **, char name[30], char surname[30]);
 void kitapInfo(KITAP **, KITAPYAZAR **, YAZAR **, char Name[30]);
 void takeOrnek(KITAPORNEK **);
 void insideLinkedlist(KITAP **);
+void matchingKitapYazar(KITAP **, KITAPYAZAR **, YAZAR **);
+void KitYazGuncelle(KITAP **, KITAPYAZAR **, YAZAR **);
+void kitOduncAl(KITAPODUNC**, KITAP**);
 
 int main(){
     YAZAR *yazar = NULL;
@@ -101,7 +104,7 @@ int main(){
     takeKitaplar_file(&kitap);
     insideLinkedlist(&kitap);
     takeKitapYazar_file(&kityaz);
-    takeKitapOdunc_file(&kitOd);
+    takeKitapOdunc_file(&kitOd,&kitap);
 
     while(option != 15){
 
@@ -139,7 +142,9 @@ int main(){
             case 5 :
                 printOgrenciler(&ogrenci);
             break;
-            case 6 : break;
+            case 6 : 
+                kitOduncAl(&kitOd, &kitap);
+            break;
             case 7 :
                 printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                 scanf("%d", &option2);
@@ -174,8 +179,13 @@ int main(){
             break;
             case 9 : break;
             case 10 : break;
-            case 11 : break;
-            case 12 : break;
+            case 11 : 
+                matchingKitapYazar(&kitap, &kityaz, &yazar);
+            break;
+            case 12 :
+                KitYazGuncelle(&kitap, &kityaz, &yazar);
+                printYazarlar(&yazar);
+            break;
             case 13 : 
                 printf("\nHangi islemi gerceklestireceksiniz?\n1- Ekle\n2- Sil\n3-Guncelle\n4-Sekmeden Cik\n\n"); 
                 scanf("%d", &option2);
@@ -202,7 +212,6 @@ int main(){
             case 14 :
                 showYazar(&yazar, &kityaz, &kitap);
             break;  // printYazarlar(&yazar);
-            case 15 : break;
 
 
         }
@@ -589,7 +598,7 @@ void takeKitaplar_file(KITAP **kitap){
     }
 
     strcpy(currH->head->Durum,"rafta");
-    sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+    sprintf(currH->head->EtiketNo, "%s_%d", ktp->ISBN, i);
     i=1;
     printf("%s", currH->head->EtiketNo);
 
@@ -622,7 +631,7 @@ void takeKitaplar_file(KITAP **kitap){
         }
             
         strcpy(currH->head->Durum,"rafta");
-        sprintf(currH->head->EtiketNo, "\n%s_%d", ktp->ISBN, i);
+        sprintf(currH->head->EtiketNo, "%s_%d", ktp->ISBN, i);
         i=1;
         printf("%s", currH->head->EtiketNo);
     }  
@@ -699,12 +708,15 @@ void takeKitapYazar_file(KITAPYAZAR **kityaz){
     fclose(fp);
 }
 
-void takeKitapOdunc_file(KITAPODUNC **kitOd){
+void takeKitapOdunc_file(KITAPODUNC **kitOd, KITAP** kitap){
     FILE *fp;
     //int i=0;
     int nextID;
     char line[100];
     char *sp;
+    char *token;
+    int found = 0;
+    int found2 = 0;
 
     fp = fopen("KitapOdunc.csv", "r+");
     KITAPODUNC *oduc = (KITAPODUNC*)malloc(sizeof(KITAPODUNC));
@@ -715,6 +727,36 @@ void takeKitapOdunc_file(KITAPODUNC **kitOd){
     oduc->next = NULL;
     
     Split_Data_ko(oduc,line);
+
+    //KITAPODUNC *curr = *kitOd;
+    //KITAPODUNC *prev = NULL;
+
+    KITAP *curr2 = *kitap;
+    KITAP *prev2 = NULL;
+    strcpy(token,oduc->etiketNo);
+    token = strtok(token,"_");
+    printf("        %s", token);
+    if(oduc->islemTipi == 0){
+    while((curr2!=NULL)&&(found==0)){
+        if(strcmp(curr2->ISBN,token)==0){
+            printf("\nbuldum!");
+            found = 1;
+            while((curr2->head != NULL)&&(found2==0)){
+                printf("%s\n", curr2->head->EtiketNo);
+                printf("%s\n", oduc->etiketNo);
+                if(strcmp(oduc->etiketNo,curr2->head->EtiketNo)==0){
+                    printf("\nbuldum2");
+                    found2 = 1;
+                    strcpy(curr2->head->Durum,oduc->ogrID);
+                    printf("Odunc verilen kitap: %s\n", curr2->head->Durum);
+                }
+                curr2->head=curr2->head->next;
+            }
+        }
+        prev2 = curr2;
+        curr2 = curr2->next;
+    }
+    }
     
     //printf("\n\n\n%s %s %d %d.%d.%d", oduc->etiketNo, oduc->ogrID, oduc->islemTipi, oduc->islemTarihi.gun, oduc->islemTarihi.ay, oduc->islemTarihi.yil);
     
@@ -736,7 +778,29 @@ void takeKitapOdunc_file(KITAPODUNC **kitOd){
 
         Split_Data_ko(oduc,line);
         //printf("\n%s %s %d %d.%d.%d", oduc->etiketNo, oduc->ogrID, oduc->islemTipi, oduc->islemTarihi.gun, oduc->islemTarihi.ay, oduc->islemTarihi.yil);
-
+        curr2 = *kitap;
+        prev2 = NULL;
+        found=0;
+        found2=0;
+        strcpy(token,oduc->etiketNo);
+        token = strtok(token,"_");
+        if(oduc->islemTipi == 0){
+        while((curr2!=NULL)&&(found==0)){
+            if(strcmp(curr2->ISBN,token)==0){
+                found = 1;
+                while((curr2->head != NULL)&&(found2==0)){
+                    if(strcmp(oduc->etiketNo,curr2->head->EtiketNo)==0){
+                        found2 = 1;
+                        strcpy(curr2->head->Durum,oduc->ogrID);
+                        printf("Odunc verilen kitap: %s\n", curr2->head->Durum);
+                    }
+                    curr2->head=curr2->head->next;
+                }
+            }
+            prev2 = curr2;
+            curr2 = curr2->next;
+        }
+        }
     }
     
     fclose(fp);
@@ -1119,14 +1183,14 @@ void kitapInfo(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar, char kitName[3
 }
 
 void matchingKitapYazar(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
-        char kitName[30];
+    char kitName[30];
     int found = 0;
     int found2 = 0;
     int found3 = 0;
-    printf("aramak istediginiz kitap ismini giriniz.");
+    printf("\nEskestirmek istediginiz kitap ismini giriniz: ");
     getchar();
     gets(kitName);
-    puts(kitName);
+    //puts(kitName);
 
     KITAP *curr = *kitap;
     KITAP *prev = NULL;
@@ -1140,19 +1204,22 @@ void matchingKitapYazar(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
     while((curr->next != NULL)&&(found==0)){
         if(strcmp(kitName, curr->kitapAdi)==0){
             found = 1;
-            while((curr2->next!= NULL)&&(found2==0)){
+            while((curr2->next!= NULL)){
                 if(strcmp(curr->ISBN,curr2->ISBN)==0){
-                    found2 = 1;
+                    //found2 = 1;
+                    found3 = 0;
                     while((curr3->next!= NULL)&&(found3==0)){
-                        if(curr2->yazarID, curr3->ID){
+                        if(curr2->yazarID == curr3->ID){
                             found3 = 1;
-                            printf("\nyazar adi: %s %s", curr3->name, curr3->surname);
+                            printf("yazar adi: %s %s\n", curr3->name, curr3->surname);
                         }
+                        prev3 = curr3;
+                        curr3 = curr3->next;
                     }
 
                 }
                 prev2 = curr2;
-                curr = curr->next;
+                curr2 = curr2->next;
             }
         }
         prev = curr;
@@ -1160,3 +1227,130 @@ void matchingKitapYazar(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
 
     }
 }
+
+void KitYazGuncelle(KITAP **kitap, KITAPYAZAR **kityaz, YAZAR **yazar){
+    char name[30];
+    char surname[30];
+    char kitName[30];
+    int found = 0;
+    int found2 = 0;
+    int found3 = 0;
+    printf("\nKitap ismini giriniz: ");
+    getchar();
+    gets(kitName);
+    //puts(kitName);
+
+    KITAP *curr = *kitap;
+    KITAP *prev = NULL;
+
+    KITAPYAZAR *curr2 = *kityaz;
+    KITAPYAZAR *prev2 = NULL;
+
+    YAZAR *curr3 = *yazar;
+    YAZAR *prev3 = NULL;
+    
+    while((curr->next != NULL)&&(found==0)){
+        if(strcmp(kitName, curr->kitapAdi)==0){
+            found = 1;
+            while((curr2->next!= NULL)){
+                if(strcmp(curr->ISBN,curr2->ISBN)==0){
+                    //found2 = 1;
+                    found3 = 0;
+                    while((curr3->next!= NULL)&&(found3==0)){
+                        if(curr2->yazarID== curr3->ID){
+                            found3 = 1;
+                            printf("yazar adi: %s %s\n", curr3->name, curr3->surname);
+                            printf("Guncel Ismi giriniz: ");
+                            scanf("%s %s", curr3->name, curr3->surname);
+                            //strcpy(curr3->name, name);
+                            //strcpy(curr3->surname, surname);
+                            printf("Guncel yazar: %s %s\n", curr3->name, curr3->surname);
+                        }
+                        prev3 = curr3;
+                        curr3 = curr3->next;
+                    }
+
+                }
+                prev2 = curr2;
+                curr2 = curr2->next;
+            }
+        }
+        prev = curr;
+        curr = curr->next;
+
+    }
+}
+
+void kitOduncAl(KITAPODUNC **kitapOdunc, KITAP** kitap){
+    char *kitISBN;
+    char *ogrID;
+    int gun;
+    int ay;
+    int yil;
+    int found = 0;
+    int found2 = 0;
+    printf("Odunc almak istediginiz kitabin ISBN bilgisini giriniz: ");
+    scanf("%s", kitISBN);
+    printf("Ogrenci ID bilginizi giriniz: ");
+    scanf("%s", ogrID);
+    printf("Aldiginiz tarihin bilgisini giriniz(gg aa yy).: ");
+    scanf("%d %d %d", &gun, &ay, &yil);
+
+    FILE *fpo;
+    KITAPODUNC *odunc = (KITAPODUNC*)malloc(sizeof(KITAPODUNC));
+
+    KITAPODUNC *curr = *kitapOdunc;
+    KITAPODUNC *prev = NULL;
+
+    KITAP *curr2 = *kitap;
+    KITAP *prev2 = NULL;
+
+    
+    while((curr2!=NULL)&&(found==0)){
+        if(strcmp(curr2->ISBN,kitISBN)==0){
+            printf("\nbuldum!");
+            found = 1;
+            while((curr2->head != NULL)&&(found2==0)){
+                printf("%s\n", curr2->head->EtiketNo);
+                printf("%s\n", kitISBN);
+                if(strcmp(curr2->head->Durum,"rafta")==0){
+                    printf("\nbuldum2");
+                    found2 = 1;
+                    strcpy(curr2->head->Durum,ogrID);
+                    printf("Odunc verilen kitap: %s\n", curr2->head->EtiketNo);
+
+                    while(curr->next != NULL){
+                        curr = curr->next; 
+                    }
+                    curr->next = odunc;
+                    odunc->next = NULL;
+                    odunc->islemTipi = 0;
+                    strcpy(odunc->ogrID, ogrID);
+                    strcpy(odunc->etiketNo, curr2->head->EtiketNo);
+                    odunc->islemTarihi.gun = gun;
+                    odunc->islemTarihi.ay = ay;
+                    odunc->islemTarihi.yil = yil;
+
+                    fpo = fopen("KitapOdunc.scv", "a");
+                    fprintf(fpo,"\n%s,%s,%d,%d.%d.%d", curr2->head->EtiketNo, odunc->ogrID, 0, gun, ay, yil);
+                    fclose(fpo);
+
+                    
+
+                }
+                curr2->head=curr2->head->next;
+            }
+        }
+        prev2 = curr2;
+        curr2 = curr2->next;
+    }
+    
+}
+
+// int odunc(){
+//    return 0;
+// }
+
+// int teslim(){
+//    return 1;
+// }
